@@ -6,6 +6,7 @@ import { api } from '../services/api.js';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(['All']);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [sortOption, setSortOption] = useState('default');
@@ -15,26 +16,41 @@ export default function ProductsPage() {
 
   useEffect(() => {
     let active = true;
-    api.getProducts()
-      .then((data) => active && setProducts(data.products))
-      .catch((caught) => active && setError(caught.message))
-      .finally(() => active && setLoading(false));
-    return () => { active = false; };
-  }, []);
+    setLoading(true);
+    setError('');
 
-  const categories = useMemo(
-    () => ['All', ...new Set(products.map((product) => product.category))],
-    [products]
-  );
+    api.getProducts(search)
+      .then((data) => {
+        if (!active) return;
+        const fetchedProducts = data?.products || [];
+        setProducts(fetchedProducts);
+        if (fetchedProducts.length > 0) {
+          setCategories((prev) => {
+            const set = new Set(prev);
+            fetchedProducts.forEach((product) => {
+              if (product.category) set.add(product.category);
+            });
+            return Array.from(set);
+          });
+        }
+      })
+      .catch((caught) => {
+        if (!active) return;
+        setError(caught.message);
+        setProducts([]);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
 
-  const query = search.trim().toLowerCase();
-  const visibleProducts = products.filter((product) => {
-    const matchesSearch =
-      product.name.toLowerCase().includes(query) ||
-      product.description.toLowerCase().includes(query);
-    const matchesCategory = category === 'All' || product.category === category;
-    return matchesSearch && matchesCategory;
-  });
+    return () => {
+      active = false;
+    };
+  }, [search]);
+
+  const visibleProducts = useMemo(() => {
+    return products.filter((product) => category === 'All' || product.category === category);
+  }, [products, category]);
 
   // Sort a shallow copy so the original filtered list is never mutated.
   // Number() coerces prices that may arrive as numeric strings from the API.
