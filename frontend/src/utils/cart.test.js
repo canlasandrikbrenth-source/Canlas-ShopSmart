@@ -24,6 +24,13 @@ describe('cart utilities', () => {
     expect(result.cart[0].quantity).toBe(1);
   });
 
+  it('prevents adding a product beyond available stock limit', () => {
+    const cart = [{ productId: 1, name: 'Mouse', price: 500, stock: 2, quantity: 2 }];
+    const result = addProductToCart(cart, { id: 1, name: 'Mouse', price: 500, stock: 2 });
+    expect(result.error).toContain('Only 2 unit(s) of Mouse are available.');
+    expect(result.cart[0].quantity).toBe(2);
+  });
+
   it('increases cart quantity by one', () => {
     const cart = [{ productId: 1, name: 'Mouse', price: 500, stock: 5, quantity: 1 }];
     const result = updateCartQuantity(cart, 1, 2);
@@ -48,4 +55,3 @@ describe('cart utilities', () => {
     expect(updateCartQuantity(cart, 1, 2).error).toContain('Only 1');
   });
 });
-

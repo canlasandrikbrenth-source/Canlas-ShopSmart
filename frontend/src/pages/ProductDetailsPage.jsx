@@ -8,7 +8,7 @@ export default function ProductDetailsPage() {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const [error, setError] = useState('');
-  const { addToCart, cartMessage } = useCart();
+  const { addToCart, cartMessage, cartMessageType } = useCart();
 
   useEffect(() => {
     api.getProduct(productId).then(setProduct).catch((caught) => setError(caught.message));
@@ -26,7 +26,7 @@ export default function ProductDetailsPage() {
         <p>{product.description}</p>
         <p className="price">₱{Number(product.price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</p>
         <p>{product.stock} unit(s) available</p>
-        <StatusMessage>{cartMessage}</StatusMessage>
+        <StatusMessage type={cartMessageType}>{cartMessage}</StatusMessage>
         <button disabled={product.stock < 1} onClick={() => addToCart(product)}>Add to cart</button>
       </div>
     </section>

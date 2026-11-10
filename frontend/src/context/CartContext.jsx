@@ -6,11 +6,18 @@ const CartContext = createContext(null);
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [cartMessage, setCartMessage] = useState('');
+  const [cartMessageType, setCartMessageType] = useState('info');
 
   function addToCart(product) {
     setCart((currentCart) => {
       const result = addProductToCart(currentCart, product);
-      setCartMessage(result.error || `${product.name} was added to your cart.`);
+      if (result.error) {
+        setCartMessage(result.error);
+        setCartMessageType('error');
+      } else {
+        setCartMessage(`${product.name} was added to your cart.`);
+        setCartMessageType('info');
+      }
       return result.cart;
     });
   }
@@ -18,7 +25,13 @@ export function CartProvider({ children }) {
   function setQuantity(productId, quantity) {
     setCart((currentCart) => {
       const result = updateCartQuantity(currentCart, productId, quantity);
-      setCartMessage(result.error);
+      if (result.error) {
+        setCartMessage(result.error);
+        setCartMessageType('error');
+      } else {
+        setCartMessage('');
+        setCartMessageType('info');
+      }
       return result.cart;
     });
   }
@@ -26,23 +39,26 @@ export function CartProvider({ children }) {
   function removeFromCart(productId) {
     setCart((currentCart) => currentCart.filter((item) => item.productId !== productId));
     setCartMessage('Item removed from cart.');
+    setCartMessageType('info');
   }
 
   function clearCart() {
     setCart([]);
     setCartMessage('');
+    setCartMessageType('info');
   }
 
   const value = useMemo(() => ({
     cart,
     cartMessage,
+    cartMessageType,
     itemCount: calculateCartItemCount(cart),
     total: calculateCartTotal(cart),
     addToCart,
     setQuantity,
     removeFromCart,
     clearCart
-  }), [cart, cartMessage]);
+  }), [cart, cartMessage, cartMessageType]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

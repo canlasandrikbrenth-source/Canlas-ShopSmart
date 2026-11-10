@@ -12,7 +12,7 @@ export default function ProductsPage() {
   const [sortOption, setSortOption] = useState('default');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { addToCart, cartMessage } = useCart();
+  const { addToCart, cartMessage, cartMessageType } = useCart();
 
   useEffect(() => {
     let active = true;
@@ -100,7 +100,7 @@ export default function ProductsPage() {
         </label>
       </div>
 
-      <StatusMessage>{cartMessage}</StatusMessage>
+      <StatusMessage type={cartMessageType}>{cartMessage}</StatusMessage>
       {loading && <StatusMessage>Loading products…</StatusMessage>}
       {error && <StatusMessage type="error">{error} Make sure the backend is running.</StatusMessage>}
       {!loading && !error && sortedProducts.length === 0 && <StatusMessage>No products match your filters.</StatusMessage>}

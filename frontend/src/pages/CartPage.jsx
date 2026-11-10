@@ -4,12 +4,12 @@ import { useCart } from '../context/CartContext.jsx';
 import { calculateItemSubtotal } from '../utils/cart.js';
 
 export default function CartPage() {
-  const { cart, itemCount, total, cartMessage, setQuantity, removeFromCart } = useCart();
+  const { cart, itemCount, total, cartMessage, cartMessageType, setQuantity, removeFromCart } = useCart();
 
   return (
     <section>
       <div className="page-heading"><p className="eyebrow">YOUR ORDER</p><h1>Shopping cart</h1></div>
-      <StatusMessage type={cartMessage.startsWith('Only') ? 'error' : 'info'}>{cartMessage}</StatusMessage>
+      <StatusMessage type={cartMessageType || (cartMessage.startsWith('Only') ? 'error' : 'info')}>{cartMessage}</StatusMessage>
       {cart.length === 0 ? (
         <div className="empty-state"><h2>Your cart is empty</h2><Link className="button" to="/">Browse products</Link></div>
       ) : (
