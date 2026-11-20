@@ -323,3 +323,12 @@ Confirm that the front end uses http://localhost:5173 and that `FRONTEND_URL=htt
 | `npm run db:studio` | Open the Prisma database viewer |
 
 Read `docs/TEACHING_ROADMAP.md` for the weekly improvement plan.
+
+## AWS deployment (aws-deploy branch)
+
+The hosted classroom release runs on a single EC2 instance (Nginx + Express + PostgreSQL). See:
+
+- `docs/AWS_DEPLOYMENT.md` — account plan, resource register, architecture decision, diagram, ports, secrets, migrations
+- `docs/AWS_DEPLOYMENT_VERIFICATION.md` — hosted checks, two improvements and retests
+- `docs/RELEASE_NOTE_v1.1.0.md` — release note
+- `deploy/ec2/` — bootstrap, release, Nginx and systemd files

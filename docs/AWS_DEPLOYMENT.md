@@ -97,4 +97,4 @@ AWS identity (IAM / the instructor's federated role) controls who manages the EC
 2. Later releases: connect with EC2 Instance Connect and run `sudo shopsmart-release` (fetch → `npm ci` → Prisma generate → Vite build → `migrate deploy` → `seed:initial` → copy build → restart API → health check).
 3. Logs: `sudo journalctl -u shopsmart-api -n 100` (method, path, status, timing and request ID only — no bodies, cookies or secrets) and `/var/log/nginx/access.log`.
 
-See section 7 of `docs/AWS_DEPLOYMENT_VERIFICATION.md` for the hosted check results.
+Hosted check results, the two improvements and their retests: `docs/AWS_DEPLOYMENT_VERIFICATION.md`. Release note: `docs/RELEASE_NOTE_v1.1.0.md`.
