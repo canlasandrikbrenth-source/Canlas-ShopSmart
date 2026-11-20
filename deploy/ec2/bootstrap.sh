@@ -43,7 +43,7 @@ if [ ! -d $APP_DIR/.git ]; then
 else
   sudo -u shopsmart git -C $APP_DIR fetch origin "$BRANCH" && sudo -u shopsmart git -C $APP_DIR checkout -B "$BRANCH" "origin/$BRANCH"
 fi
-COMMIT=$(git -C $APP_DIR rev-parse --short HEAD)
+COMMIT=$(sudo -u shopsmart git -C $APP_DIR rev-parse --short HEAD)
 
 # 5. PostgreSQL: local only (listen_addresses=localhost is the Ubuntu default). Password generated here, never printed.
 install -d -m 0750 -o root -g shopsmart /etc/shopsmart
@@ -51,7 +51,7 @@ if [ ! -f $ENV_FILE ]; then
   DB_PASS=$(openssl rand -hex 24)
   sudo -u postgres psql -v ON_ERROR_STOP=1 -c "CREATE ROLE shopsmart_app LOGIN PASSWORD '$DB_PASS';"
   sudo -u postgres psql -v ON_ERROR_STOP=1 -c "CREATE DATABASE shopsmart OWNER shopsmart_app;"
-  umask 027
+  ( umask 027
   cat > $ENV_FILE <<ENVEOF
 NODE_ENV=production
 HOST=127.0.0.1
@@ -62,6 +62,7 @@ FRONTEND_URL=https://$PUBLIC_HOST
 DATABASE_URL=postgresql://shopsmart_app:$DB_PASS@127.0.0.1:5432/shopsmart?schema=public
 # GEMINI_API_KEY=   (optional; leave unset to use the labeled rule-based fallback)
 ENVEOF
+  )
   unset DB_PASS
   chown root:shopsmart $ENV_FILE && chmod 0640 $ENV_FILE
 fi

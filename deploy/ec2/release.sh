@@ -9,10 +9,10 @@ ENV_FILE=/etc/shopsmart/api.env
 as_app() { sudo -u shopsmart -H --preserve-env=DATABASE_URL bash -c "cd $APP_DIR && $*"; }
 
 if [ "${1:-}" != "--no-pull" ]; then
-  BRANCH=$(git -C $APP_DIR rev-parse --abbrev-ref HEAD)
+  BRANCH=$(sudo -u shopsmart git -C $APP_DIR rev-parse --abbrev-ref HEAD)
   as_app "git fetch origin $BRANCH && git reset --hard origin/$BRANCH"
 fi
-COMMIT=$(git -C $APP_DIR rev-parse --short HEAD)
+COMMIT=$(sudo -u shopsmart git -C $APP_DIR rev-parse --short HEAD)
 echo "Releasing commit $COMMIT"
 
 as_app "npm ci --no-audit --no-fund"
@@ -27,7 +27,8 @@ as_app "npm run db:seed:initial"
 unset DATABASE_URL
 
 install -d -m 0755 /var/www/shopsmart
-rsync -a --delete $APP_DIR/frontend/dist/ /var/www/shopsmart/
+# Nginx (www-data) must be able to read the files whatever umask built them
+rsync -rlt --delete --chown=root:root --chmod=D755,F644 $APP_DIR/frontend/dist/ /var/www/shopsmart/
 
 sed -i "s|^APP_VERSION=.*|APP_VERSION=$COMMIT|" $ENV_FILE
 systemctl enable shopsmart-api >/dev/null
