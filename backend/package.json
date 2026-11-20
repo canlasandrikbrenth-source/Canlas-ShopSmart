@@ -9,10 +9,11 @@
     "lint": "eslint .",
     "test": "node --test",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev --name initial_schema",
+    "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:seed:initial": "node prisma/seed-initial.js"
   },
   "dependencies": {
     "@prisma/client": "^6.15.0",

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 import StatusMessage from '../components/StatusMessage.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { api } from '../services/api.js';
@@ -7,10 +8,16 @@ import { calculateItemSubtotal } from '../utils/cart.js';
 
 export default function CheckoutPage() {
   const { cart, total, clearCart } = useCart();
-  const [form, setForm] = useState({ customerName: '', email: '', address: '' });
+  const { user, checking } = useAuth();
+  const [form, setForm] = useState({ customerName: user?.name || '', email: user?.email || '', address: '' });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [order, setOrder] = useState(null);
+
+  // Prefill delivery name and email once the signed-in customer is known.
+  useEffect(() => {
+    if (user) setForm((current) => ({ ...current, customerName: current.customerName || user.name, email: current.email || user.email }));
+  }, [user]);
 
   function updateField(event) {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
@@ -39,12 +46,23 @@ export default function CheckoutPage() {
       <p className="eyebrow">ORDER RECEIVED</p>
       <h1>Thank you, {order.customerName}!</h1>
       <p>Your simulated order number is <strong>#{order.id}</strong>.</p>
+      <p><Link to={`/account/orders/${order.id}`}>View this order in My account</Link></p>
       <p>Total: <strong>₱{Number(order.total).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</strong></p>
       <Link className="button" to="/">Continue shopping</Link>
     </section>
   );
 
   if (cart.length === 0) return <section><div className="empty-state"><h1>Your cart is empty</h1><Link className="button" to="/">Browse products</Link></div></section>;
+
+  if (checking) return <section><p>Checking your session…</p></section>;
+  if (!user) return (
+    <section><div className="empty-state">
+      <p className="eyebrow">SIGN-IN REQUIRED</p>
+      <h1>Sign in to place your simulated order</h1>
+      <p>Orders are saved to your test account so only you can view them.</p>
+      <Link className="button" to="/signin?next=/checkout">Sign in or create a test account</Link>
+    </div></section>
+  );
 
   return (
     <section className="checkout-layout">

@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { prisma } from '../lib/prisma.js';
-import { memoryStore } from '../lib/memoryDb.js';
 import { buildAssistantResponse } from '../services/assistant.js';
 import { assistantQuestionSchema } from '../validators/schemas.js';
 
@@ -21,15 +20,9 @@ router.post('/questions', assistantLimiter, async (request, response, next) => {
       });
     }
 
-    try {
-      const products = await prisma.product.findMany({ where: { active: true }, orderBy: { price: 'asc' } });
-      const assistantResult = await buildAssistantResponse(products, parsed.data.question);
-      response.json(assistantResult);
-    } catch {
-      const products = [...memoryStore.products.filter((p) => p.active)].sort((a, b) => a.price - b.price);
-      const assistantResult = await buildAssistantResponse(products, parsed.data.question);
-      response.json(assistantResult);
-    }
+    const products = await prisma.product.findMany({ where: { active: true }, orderBy: { price: 'asc' } });
+    const assistantResult = await buildAssistantResponse(products, parsed.data.question);
+    response.json(assistantResult);
   } catch (error) {
     next(error);
   }

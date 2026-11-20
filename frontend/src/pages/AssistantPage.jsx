@@ -61,6 +61,13 @@ export default function AssistantPage() {
 
         {!loading && result && (
           <>
+            {result.provider && (
+              <p className={`provider-badge ${result.provider === 'gemini' ? 'live' : 'fallback'}`}>
+                {result.provider === 'gemini' && 'Answer drafted by live AI provider (Gemini), verified against the catalog'}
+                {result.provider.startsWith('rule-based') && `Rule-based fallback answer — no live AI used (${result.provider.replace('rule-based-fallback ', '').replace(/[()]/g, '')})`}
+                {result.provider === 'none' && 'No matching product — no AI call made'}
+              </p>
+            )}
             <p className="assistant-text">{result.answer}</p>
 
             {result.recommendedProducts?.length > 0 && (

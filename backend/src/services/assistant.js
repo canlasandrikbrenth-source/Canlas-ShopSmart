@@ -123,7 +123,8 @@ export async function buildAssistantResponse(products, question, options = {}) {
     return {
       answer: 'I could not find an in-stock product matching that request.',
       recommendedProducts: [],
-      sources: []
+      sources: [],
+      provider: 'none'
     };
   }
 
@@ -160,11 +161,13 @@ export async function buildAssistantResponse(products, question, options = {}) {
       return {
         answer: draft.answer,
         recommendedProducts,
-        sources
+        sources,
+        provider: 'gemini'
       };
     }
   }
 
   // Step 4: Fallback to grounded rule-based engine if provider failed or output was invalid
-  return buildRuleBasedResponse(candidates);
+  // `provider` tells the UI and the report whether a live AI call was used.
+  return { ...buildRuleBasedResponse(candidates), provider: draft ? 'rule-based-fallback (draft rejected)' : 'rule-based-fallback (provider unavailable)' };
 }
